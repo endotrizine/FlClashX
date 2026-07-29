@@ -15,7 +15,7 @@
       let
         pkgs = import nixpkgs { inherit system; };
 
-        version = "0.4.2";
+        version = self.shortRev or self.dirtyShortRev or "unknown";
 
         # HASHES
         # ==========================================================
