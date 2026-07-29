@@ -325,6 +325,7 @@ Add the repository to your flake's `inputs` and apply the overlay:
 {
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    # New input
     flclashx.url = "github:pluralplay/FlClashX";
   };
 
