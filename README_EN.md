@@ -378,5 +378,3 @@ If you want to support with a small donation, you can <a href="https://t.me/trib
 [**Russian**](README.md)
 
 </div>
-
-**TON USDT:** `UQDSfrJ_k1BdsknhdR_zj4T3Is3OdMylD8PnDJ9mxO35i-TE`
