@@ -407,6 +407,7 @@ proxy-groups:
 {
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    # Новый инпут
     flclashx.url = "github:pluralplay/FlClashX";
   };
 
