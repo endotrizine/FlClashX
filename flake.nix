@@ -1,11 +1,9 @@
 {
   description = "A fork of the multi-platform proxy client FlClash, based on original Mihomo Core, simple and easy to use, open source and ad-free.";
-
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
   };
-
   outputs =
     {
       self,
@@ -19,47 +17,53 @@
 
         version = "0.4.2";
 
+        # ==========================================================
+        # ХЕШИ — обновляются при апдейте зависимостей.
+        # При hash mismatch: поставь pkgs.lib.fakeHash в нужное поле,
+        # собери, вставь сюда значение из строки "got:" в ошибке.
+        # ==========================================================
+
+        # Меняется когда меняется core/go.sum
+        vendorHash = "sha256-BsFT/KrD8SX3edFtipK/eaJvVopvOCmTiw+Ydh+oa0s=";
+
+        # Меняется когда меняется pubspec.lock (git-зависимости).
+        # Ключ = имя пакета из pubspec.lock (source: git).
+        # Новую git-зависимость -> добавить новую строку сюда.
+        gitHashes = {
+          flutter_js = "sha256-4PgiUL7aBnWVOmz2bcSxKt81BRVMnopabj5LDbtPYk4=";
+        };
+
+        # ==========================================================
+
         src = pkgs.lib.cleanSource ./.;
 
         flclashCore = pkgs.buildGoModule {
           pname = "flclashx-core";
-          inherit version src;
-
+          inherit version src vendorHash;
           modRoot = "core";
-
-          vendorHash = "sha256-BsFT/KrD8SX3edFtipK/eaJvVopvOCmTiw+Ydh+oa0s=";
-
           env = {
             CGO_ENABLED = "0";
           };
-
           buildPhase = ''
             runHook preBuild
-
             go build \
               -tags=with_gvisor \
               -trimpath \
               -ldflags="-w -s -X github.com/metacubex/mihomo/constant.Version=${version}" \
               -o FlClashCore .
-
             runHook postBuild
           '';
-
           installPhase = ''
             runHook preInstall
-
             install -Dm755 FlClashCore $out/bin/FlClashCore
-
             runHook postInstall
           '';
-
           doCheck = false;
         };
 
         flclashx = pkgs.flutter.buildFlutterApplication {
           pname = "flclashx";
-          inherit version src;
-
+          inherit version src gitHashes;
           pubspecLock = builtins.fromJSON (
             builtins.readFile (
               pkgs.runCommand "pubspec.lock.json" { } ''
@@ -67,21 +71,14 @@
               ''
             )
           );
-
-          gitHashes = {
-            flutter_js = "sha256-4PgiUL7aBnWVOmz2bcSxKt81BRVMnopabj5LDbtPYk4=";
-          };
-
           preBuild = ''
             mkdir -p libclash/linux
             cp ${flclashCore}/bin/FlClashCore libclash/linux/FlClashCore
           '';
-
           nativeBuildInputs = with pkgs; [
             pkg-config
             wrapGAppsHook3
           ];
-
           buildInputs = with pkgs; [
             gtk3
             glib
@@ -99,7 +96,6 @@
             libXinerama
             libXi
           ];
-
           meta = with pkgs.lib; {
             homepage = "https://github.com/pluralplay/FlClashX";
             license = licenses.gpl3Only;
@@ -114,7 +110,6 @@
           inherit flclashx;
           flclashx-core = flclashCore;
         };
-
         devShells.default = pkgs.mkShell {
           inputsFrom = [ flclashx ];
           nativeBuildInputs = with pkgs; [
